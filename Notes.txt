@@ -1,1 +1,3 @@
-the focal loss and the FPN network are included in the TensorFlow API
+the focal loss and the FPN network are included in the TensorFlow API.
+
+loading the dataset takes too much resources, even the annotations alone.
