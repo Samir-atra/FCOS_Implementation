@@ -1,3 +1,8 @@
-the focal loss and the FPN network are included in the TensorFlow API.
+- the focal loss and the FPN network are included in the TensorFlow API.
 
-the dataset json file keys are: info, images, licenses, annotations, categories.
+- computation resources are so limited (acer aspire laptop) but will work on a sample of the dataset (around 1000 images) until 
+get to the training stage.
+- the dataset json file keys are: info, images, licenses, annotations, categories.
+
+- still to learn the format of the labels from the paper and then creat the array for 
+them and prepare the data set for next steps
