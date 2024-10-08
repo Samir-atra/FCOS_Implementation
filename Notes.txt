@@ -6,3 +6,19 @@ get to the training stage.
 
 - still to learn the format of the labels from the paper and then creat the array for 
 them and prepare the data set for next steps
+
+- best version of FCOS uses ResNeXt instead of ResNet.
+
+- the format of the labels for the bounding box input is Bi = (x0 , y0 , x1 , y1 , c(i)) where the points are for the top-left and right-bottom 
+and the image class.
+
+- class = 0 means does not belong to a class
+
+- the outputs of the model are three, classification, center-ness and regression, where the resilts are as follows:
+* the classification gives 80D class vector
+* the regression gives out the 4D bounding box vector
+* the centerness is a value get calculated from the regression outputs.
+
+
+
+
