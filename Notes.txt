@@ -17,8 +17,9 @@ and the image class.
 - the outputs of the model are three, classification, center-ness and regression, where the resilts are as follows:
 * the classification gives 80D class vector
 * the regression gives out the 4D bounding box vector
-* the centerness is a value get calculated from the regression outputs.
+* the centerness is a single layer branch supresses the low quality bounding boxes and it dipects the normalized distance from the location 
+to the center of the object that the location is responsible for,
 
-
+- having trouble installing tensorflow-models on any PC but it works perfectly on colab
 
 
