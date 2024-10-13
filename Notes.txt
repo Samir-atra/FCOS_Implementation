@@ -21,5 +21,17 @@ and the image class.
 to the center of the object that the location is responsible for,
 
 - having trouble installing tensorflow-models on any PC but it works perfectly on colab
+- looking for the implementation of the intersection over union loss function in PyTorch:
+* in the PyTorch implementation there is a function named sigmoid focal loss, and other function considering the region of interest.
+* iou loss in fcos_core/layers....... giou is mentioned there so need to further check. 
+- the augmentations used in the PyTorch version is random horizontal flip, and not augmenting but things are being normalized.
+- there is something in the fcos_core/layers called smooth_l1_loss with beta, not sure what it might be, (it is used in the roi_heads/keypoint_head)
+
+- must read maskrcnn paper
+
+- another file for losses is fcos_core/modeling/rpn/fcos/
+-
+
+
 
 
