@@ -14,11 +14,11 @@ and the image class.
 
 - class = 0 means does not belong to a class
 
-- the outputs of the model are three, classification, center-ness and regression, where the resilts are as follows:
+- the outputs of the model are three, classification, center-ness and regression, where the results are as follows:
 * the classification gives 80D class vector
 * the regression gives out the 4D bounding box vector
 * the centerness is a single layer branch supresses the low quality bounding boxes and it dipects the normalized distance from the location 
-to the center of the object that the location is responsible for,
+to the center of the object that the location is responsible for.
 
 - having trouble installing tensorflow-models on any PC but it works perfectly on colab
 - looking for the implementation of the intersection over union loss function in PyTorch:
@@ -29,8 +29,9 @@ to the center of the object that the location is responsible for,
 
 - must read maskrcnn paper
 
-- another file for losses is fcos_core/modeling/rpn/fcos/
--
+- another file for losses is fcos_core/modeling/rpn/fcos/ 
+- the RoIAlign and pool are specific for segmentation of RCNN
+- remember that the loss function takes the networks prediction and the ground truth label.
 
 
 
