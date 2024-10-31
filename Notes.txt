@@ -34,5 +34,15 @@ to the center of the object that the location is responsible for.
 - remember that the loss function takes the networks prediction and the ground truth label.
 
 
+Oct/28/2024--------------------------------------------------------------------------------------------------------
 
+- after loading the data and implementing an initial version of the IOU loss now start building the model and for that
+a close study and understanding for the Resnet50 needs to be conducted.
+
+
+Oct/31/2024 -------------------------------------------------------------------------------------------------------
+- today started working on building the model.
+- there is no FPN implementation in other than tensorflow models, so can't work without it.
+- installing tensorflow models or one of it's parts is more complex than a PIP installation.
+- need to clone the models repository and try installing parts of it.
 

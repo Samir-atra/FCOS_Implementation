@@ -1,12 +1,22 @@
 # model backbone
 # FCOS uses ResNeXt not his one.
 tfm.vision.backbones.ResNet(
-    model_id = 101,
+    model_id = 50,
     depth_multiplier = 1.0,
     replace_stem_max_pool = False,
     scale_stem = True,
     activation = "relu",
     bn_trainable = True)
+
+tf.keras.applications.ResNet50(
+    include_top=True,
+    weights=&#x27;imagenet',
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation=&#x27;softmax'
+)
 
 
 
@@ -46,9 +56,7 @@ focal = tf.keras.losses.CategoricalFocalCrossentropy(
     gamma = ,
 )
 
-class FCOSLoss():
-  def call(self, y_true, y_pred):
-    return unitboxIOU + focal
+fcosloss = unitboxIOU + focal
 
 
 
