@@ -6,10 +6,10 @@ import sys
 import re
 from operator import itemgetter
 import json
+import matplotlib.pyplot as plt
 sys.path.insert(0, "/home/samer/Desktop/Beedoo/FCOS/FCOS_Implementation/utils")
-from concatenate import Concat
+from concatenate import concat
 import tensorflow as tf
-
 
 
 train_imgs_path = "/home/samer/Desktop/Beedoo/FCOS/FCOS_Implementation/COCO2014/train2014/"
@@ -49,16 +49,18 @@ class DataLoader:
                 images_dict[f"{imageid}"] = (
                     image  # create a dictionary of the image titles and themselves
                 )
-                print(image)
+                plt.imshow(image)
+                plt.show()
+                # print(image)
                 image_list.append(image)
                 counter += 1
             else:
                 break
-        print(counter)
         return image_list
 
     def load_labels(self, file_path):
-        """creates labels lists"""
+        """creates labels lists for ech image consisting of the image id and
+        category id and the bounding box for each object in the image"""
 
         labels_list = []
         bounding_boxes = []
@@ -79,22 +81,23 @@ class DataLoader:
             ) in (
                 sorted_imageids
             ):  # iterate over the lines of the label file, where each line is a box with it's label
-                print(line)
-                if counter < 500:
+                # print(line)
+                if counter < 500:                  # due to limited computation had to limit the number of boxes to be loaded
                     if not boxes.get(line["image_id"]):
                         boxes[line["image_id"]] = [
-                            Concat.concat(0, line["bbox"], line["category_id"])
+                            concat(line["bbox"], line["category_id"])
                         ]
                     elif boxes.get(line["image_id"]):
-                        boxes[line["image_id"]] = Concat.concat(
-                            0,
+                        boxes[line["image_id"]] = concat(
                             boxes[line["image_id"]],
-                            Concat.concat(0, line["bbox"], line["category_id"]),
+                            concat(line["bbox"], line["category_id"]),
                         )
                     counter += 1
-                    print(counter)
+
+        return boxes
 
 
 if __name__ == "__main__":
     loader = DataLoader(train_imgs_path, annotations)
-    loader.load_labels(annotations)
+    images_list = loader.load_images(train_imgs_path)
+    boxes_dictionary = loader.load_labels(annotations)

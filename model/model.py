@@ -1,50 +1,55 @@
+"""implementation for the FCOS model, the coompiler 
+and the training loop"""
+
+import tensorflow as tf
+from ..loss import IOULoss
+# import tensorflow_models as tfm
+
+
 # model backbone
-# FCOS uses ResNeXt not his one.
-tfm.vision.backbones.ResNet(
-    model_id = 50,
-    depth_multiplier = 1.0,
-    replace_stem_max_pool = False,
-    scale_stem = True,
-    activation = "relu",
-    bn_trainable = True)
+# FCOS uses ResNeXt not his one for better performance but this one to begine with.
+resnet = tf.keras.applications.ResNet50(
+        include_top=False,
+        weights="imagenet",
+        input_shape=(800, 1024, 3),
+        classes=80,
+    )
 
-tf.keras.applications.ResNet50(
-    include_top=True,
-    weights=&#x27;imagenet',
-    input_tensor=None,
-    input_shape=None,
-    pooling=None,
-    classes=1000,
-    classifier_activation=&#x27;softmax'
-)
+c3, c4, c5 = resnet.get_layer("conv3_block4_out").output, resnet.get_layer("conv4_block6_out").output, resnet.get_layer("conv5_block3_out").output
+backbone_model = tf.keras.model(input  = resnet.input,
+                                output = [c3, c4, c5])
+
+###################
+
+conv3_1 = tf.keras.layers.Conv2D(256, 1, 1, "same")
+conv4_1 = tf.keras.layers.Conv2D(256, 1, 1, "same")
+conv5_1 = tf.keras.layers.Conv2D(256, 1, 1, "same")
+conv3_3 = tf.keras.layers.Conv2D(256, 3, 1, "same")
+conv4_3 = tf.keras.layers.Conv2D(256, 3, 1, "same")
+conv5_3 = tf.keras.layers.Conv2D(256, 3, 1, "same")
+conv6_3 = tf.keras.layers.Conv2D(256, 3, 2, "same")
+conv7_3 = tf.keras.layers.Conv2D(256, 3, 2, "same")
+upsample = tf.keras.layers.UpSampling2D(2)
 
 
+p3_out = conv3_1(c3)
+p4_out = conv4_1(c4)
+p5_out = conv5_1(c5)
+p4_out = p4_out + upsample(p5_out)
+p3_out = p3_out + upsample(p4_out)
+p3_out = conv3_3(p3_out)  #
+p4_out = conv4_3(p4_out)  #
+p5_out = conv5_3(p5_out)  #
+p6_out = conv6_3(c5)   #
+p7_out = conv7_3(tf.keras.layers.relu(p6_out))  #
 
-tfm.vision.decoders.FPN(
-    input_specs: Mapping[str, tf.TensorShape],
-    min_level = 3,
-    max_level = 7,
-    num_filters = 256,
-    fusion_type = 'sum',
-    use_separable_conv = False,
-    use_keras_layer = False,
-    activation = 'relu',
-    use_sync_bn = False,
-    norm_momentum = 0.99,
-    norm_epsilon = 0.001,
-    kernel_initializer = 'VarianceScaling',
-    kernel_regularizer = None,
-    bias_regularizer = None,
-)
 
+#####################################
 
 
 # IOU loss
 
-def unitboxIOU(X, X_hat):
-  for (i,j):
-    if X_hat != 0:
-
+iouloss = IOULoss.iou_loss()
 
 
 
@@ -52,8 +57,8 @@ def unitboxIOU(X, X_hat):
 # loss function
 
 focal = tf.keras.losses.CategoricalFocalCrossentropy(
-    alpha = ,
-    gamma = ,
+    alpha = 0.25,
+    gamma = 2.0,
 )
 
 fcosloss = unitboxIOU + focal
@@ -91,3 +96,4 @@ model.fit(epochs = 90000,
           callbacks = [sched],
 
           )
+

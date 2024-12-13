@@ -1,19 +1,16 @@
 """function to concatenate the lists of bounding box coordinates of two 
 images from COCO dataset into one list"""
 
-class Concat:
-    def __init__(self):
-        
     
-    def concat(self, list1, list2):
-        """a concatination function for the COCO dataset bounding box labels"""
-        if isinstance(list1[0], list) and isinstance(list2, list):
-            alist = list1
-            alist.append(list2)
-        elif isinstance(list2, int):
-            alist = [list1]
-            alist.append(list2)
-        return alist
+def concat(list1, list2):
+    """a concatination function for the COCO dataset bounding box labels"""
+    if isinstance(list1[0], list) and isinstance(list2, list):
+        alist = list1
+        alist.append(list2)
+    elif isinstance(list2, int):
+        alist = [list1]
+        alist.append(list2)
+    return alist
 
 
 # check if need to put all the boxes of a single image in a list instead of keeping them separate.

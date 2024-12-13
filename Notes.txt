@@ -46,3 +46,15 @@ Oct/31/2024 --------------------------------------------------------------------
 - installing tensorflow models or one of it's parts is more complex than a PIP installation.
 - need to clone the models repository and try installing parts of it.
 
+Dec/13/2014 ----------------------------------------------------------------------------------------------------
+- to answer the check requiest above: the GIoU: penalizing the union area over the circumscribed rectangle’s area in
+IoU Loss.
+- today will be implementing the FPN layer-by-layer from keras documantation in the RetinaNet model, and start 
+working on implementing the heads of classification, regression and center-ness.
+- to implement the iou loss the inheretance from the keras loss class might fix it, so check the custom loss 
+tensorflow implementation.
+
+
+
+
+
