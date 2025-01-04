@@ -41,3 +41,25 @@ test_imgs_path = "/home/samer/Desktop/Beedoo/FCOS/FCOS_Implementation/COCO2014/t
 annotations = "/home/samer/Desktop/Beedoo/FCOS/FCOS_Implementation/COCO2014/annotations/"
 
 load_image(train_imgs_path)
+
+
+
+
+
+def schedule(epoch, lr):
+  if epoch == 60000 or epoch == 80000:
+    lr = lr / 10
+    return lr
+
+sched = tf.keras.callbacks.LearningRateSchedualer(
+    schedule
+)
+
+
+
+
+model.fit(epochs = 90000,
+          batch_size = 16,
+          callbacks = [sched],
+
+          )
