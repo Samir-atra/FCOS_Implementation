@@ -7,13 +7,13 @@ import tensorflow as tf
 
 
 class IOULoss:
-    """IOU loss function"""
+    """Intersection Over Union (IOU) loss function"""
 
     def __init__(self, pred, g_label):
         self.g_label = g_label
         self.pred = pred
 
-    def iou_loss(self, pred, g_label):
+    def call(self, pred, g_label):
         """the method includes the implementation of the IOU loss function"""
         if g_label != 0:
             pred_left = pred[0]
