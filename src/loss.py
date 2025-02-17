@@ -6,12 +6,11 @@ research paper
 import tensorflow as tf
 
 
-class IOULoss:
+class IOULoss(tf.keras.Loss):
     """Intersection Over Union (IOU) loss function"""
 
-    def __init__(self, pred, g_label):
-        self.g_label = g_label
-        self.pred = pred
+    def __init__(self):
+        super().__init__()
 
     def call(self, pred, g_label):
         """the method includes the implementation of the IOU loss function"""
@@ -59,3 +58,24 @@ class IOULoss:
         else:
             loss = 0
             return loss
+
+
+class FcosLoss(tf.keras.Loss):
+    """implementation of the FCOS loss function"""
+
+    def __init__(self):
+        super().__init__()
+
+    def call(self, pred, g_label):
+        """
+        the method includes the implementation of the FCOS loss function
+        Args:
+            pred : the prediction of the model
+            g_label : the ground truth label of the model
+        Returns:
+            the loss value
+        """
+        focal = tf.keras.losses.CategoricalFocalCrossentropy()
+        iouloss = IOULoss()
+        
+        return focal(pred, g_label) + iouloss(pred, g_label)

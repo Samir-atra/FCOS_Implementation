@@ -5,6 +5,7 @@ and the training loop
 
 import tensorflow as tf
 from loss import IOULoss
+from loss import FcosLoss
 from heads import head
 from backbone import backbone
 from pyramid import FPN
@@ -19,7 +20,7 @@ class FCOS(tf.keras.Model):
         super(FCOS, self).__init__()
         self.backbone = backbone()
         self.pyramid = FPN()
-        self.bias = tf.constant_initializer(-tf.math.log((1 - 0.01) / 0.01))
+        self.bias = tf.keras.initializers.Constant(-tf.math.log((1 - 0.01) / 0.01))
         self.class_num = 80
         self.classification_head = head(self.class_num, self.bias)
         self.centerness_head = head(1, self.bias)
@@ -59,11 +60,14 @@ focal = tf.keras.losses.CategoricalFocalCrossentropy(
     gamma = 2.0,
 )
 
-fcosloss = IOULoss + focal
+iouloss = IOULoss()
 
+fcosloss = FcosLoss()
+
+model = FCOS()
 
 model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate = 0.01,
               weight_decay = 0.0001,
               momentum = 0.9),
-              loss = tf.keras.loss()
+              loss = fcosloss
               )

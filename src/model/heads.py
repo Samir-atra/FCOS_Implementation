@@ -15,7 +15,7 @@ def head(output_classes, bias):
         model (keras.model): the head model
     """
     kernel_initial = tf.initializers.RandomNormal(0.0, 0.01)
-    model = tf.keras.sequential(
+    model = tf.keras.Sequential(
         [
             tf.keras.Input(shape=[None, None, 256]),
             tf.keras.layers.Conv2D(

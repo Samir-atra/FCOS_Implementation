@@ -63,5 +63,8 @@ Feb/08/2025 --------------------------------------------------------------------
 backbone, pyramid, heads and have a full class for FCOS, now to get the loss function working and compile the model.
 - the IOULoss implementation was found out from the PyTorch implementation and the research paper psudo code.
 
+Feb/17/2025 -----------------------------------------------------------------------------------------------------------
+- creating the fcos loss class came to fix the error and move to the next steps but later it should be reviewed.
+- 
 
 
