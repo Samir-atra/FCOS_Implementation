@@ -46,9 +46,9 @@ class FCOS(tf.keras.Model):
             centerness_out.append(self.centerness_head(layer))
             box_out.append(self.box_head(layer))
         
-        classifier_out = tf.concat(classifier_out, axis = 1)
-        centerness_out = tf.concat(centerness_out, axis = 1)
-        box_out = tf.concat(box_out, axis = 1)
+        classifier_out = tf.concat(classifier_out, axis = 1, name = "classifier")
+        centerness_out = tf.concat(centerness_out, axis = 1, name = "centerness")
+        box_out = tf.concat(box_out, axis = 1, name = "box")
         
         return tf.concat([classifier_out, centerness_out, box_out], axis = -1)
 
@@ -59,15 +59,13 @@ focal = tf.keras.losses.CategoricalFocalCrossentropy(
     alpha = 0.25,
     gamma = 2.0,
 )
-
 iouloss = IOULoss()
-
-fcosloss = FcosLoss()
+bce = tf.keras.losses.BinaryCrossentropy()
 
 model = FCOS()
 
 model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate = 0.01,
               weight_decay = 0.0001,
               momentum = 0.9),
-              loss = fcosloss
-              )
+              loss = {'classifier': focal, 'box': iouloss, 'centerness': bce},
+              metrics = ['precision'])

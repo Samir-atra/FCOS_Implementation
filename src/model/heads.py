@@ -18,18 +18,22 @@ def head(output_classes, bias):
     model = tf.keras.Sequential(
         [
             tf.keras.Input(shape=[None, None, 256]),
+            # tf.keras.layers.GroupNormalization(),
             tf.keras.layers.Conv2D(
                 256, 3, padding="same", kernel_initializer=kernel_initial
             ),
             tf.keras.layers.ReLU(),
+            # tf.keras.layers.GroupNormalization(),
             tf.keras.layers.Conv2D(
                 256, 3, padding="same", kernel_initializer=kernel_initial
             ),
             tf.keras.layers.ReLU(),
+            # tf.keras.layers.GroupNormalization(),
             tf.keras.layers.Conv2D(
                 256, 3, padding="same", kernel_initializer=kernel_initial
             ),
             tf.keras.layers.ReLU(),
+            # tf.keras.layers.GroupNormalization(),
             tf.keras.layers.Conv2D(
                 256, 3, padding="same", kernel_initializer=kernel_initial
             ),

@@ -77,5 +77,8 @@ class FcosLoss(tf.keras.Loss):
         """
         focal = tf.keras.losses.CategoricalFocalCrossentropy()
         iouloss = IOULoss()
+        bce = tf.keras.losses.BinaryCrossentropy()
         
-        return focal(pred, g_label) + iouloss(pred, g_label)
+        return focal(pred, g_label) , iouloss(pred, g_label) , bce(pred, g_label)
+    
+    

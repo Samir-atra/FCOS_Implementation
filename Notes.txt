@@ -67,16 +67,16 @@ Feb/17/2025 --------------------------------------------------------------------
 - creating the fcos loss class came to fix the error and move to the next steps but later it should be reviewed.
 
 Mar/6/2025 ------------------------------------------------------------------------------------------------------------- 
-- on page 5 something says: the backbone feature maps are followed by 1x1 convolutional layer with the top-down connection
-- the exponential function in the head get adjusted according to the feature level
-- check the center-ness target equation, fo relevancr to the implementation.
-- the center-ness is trained with BCE.
-- in V3 the enter-ness is parallel to the regression branch not the classification
-- double check the non-maximum suppression.
-- download the minival dataset in addition to the trainval and the test sets.
-- using GIoU instead of IoU could improve the results.
-- add group normalization in the heads.
-- check for the gradient clipping.
-- check for implementation of different ResNet sizes.
-- 
+- (checked) on page 5 something says: the backbone feature maps are followed by 1x1 convolutional layer with the top-down connection
+#- the exponential function in the head get adjusted according to the feature level
+#- check the center-ness target equation, for relevance to the implementation.
+- (checked) the center-ness is trained with BCE.
+- (checked) in V3 the enter-ness is parallel to the regression branch not the classification
+- (checked) double check the non-maximum suppression.
+#- download the minival dataset in addition to the trainval and the test sets.
+#- using GIoU instead of IoU could improve the results.
+- (checked) add group normalization in the heads.
+#- check for the gradient clipping.
+- (checked) check for implementation of different ResNet sizes.
+#- implement ResNeXt 
 
