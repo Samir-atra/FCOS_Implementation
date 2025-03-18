@@ -69,3 +69,19 @@ model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate = 0.01,
               momentum = 0.9),
               loss = {'classifier': focal, 'box': iouloss, 'centerness': bce},
               metrics = ['precision'])
+
+
+def schedule(epoch, lr):
+  if epoch == 60000 or epoch == 80000:
+    lr = lr / 10
+    return lr
+
+sched = tf.keras.callbacks.LearningRateScheduler(
+    schedule
+)
+
+model.fit(epochs = 90000,
+          batch_size = 16,
+          callbacks = [sched],
+          )
+
