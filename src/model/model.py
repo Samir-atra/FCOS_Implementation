@@ -80,7 +80,8 @@ sched = tf.keras.callbacks.LearningRateScheduler(
     schedule
 )
 
-model.fit(epochs = 90000,
+model.fit(
+          epochs = 90000,
           batch_size = 16,
           callbacks = [sched],
           )

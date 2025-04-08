@@ -68,7 +68,7 @@ Feb/17/2025 --------------------------------------------------------------------
 
 Mar/6/2025 ------------------------------------------------------------------------------------------------------------- 
 - (checked) on page 5 something says: the backbone feature maps are followed by 1x1 convolutional layer with the top-down connection
-#- the exponential function in the head get adjusted according to the feature level
+#- the exponential function in the head get adjusted according to the feature level by adding a trainable scaler.
 #- check the center-ness target equation, for relevance to the implementation.
 - (checked) the center-ness is trained with BCE.
 - (checked) in V3 the enter-ness is parallel to the regression branch not the classification

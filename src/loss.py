@@ -80,5 +80,3 @@ class FcosLoss(tf.keras.Loss):
         bce = tf.keras.losses.BinaryCrossentropy()
         
         return focal(pred, g_label) , iouloss(pred, g_label) , bce(pred, g_label)
-    
-    

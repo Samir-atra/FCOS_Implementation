@@ -59,7 +59,7 @@ class DataLoader:
         return image_list
 
     def load_labels(self, file_path):
-        """creates labels lists for ech image consisting of the image id and
+        """creates labels lists for each image consisting of the image id and
         category id and the bounding box for each object in the image"""
 
         labels_list = []
