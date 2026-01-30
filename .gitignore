@@ -6,3 +6,4 @@ Literature/*.pdf
 *.pth
 *.txt
 *.pyc
+*.logkaggle/downloader
