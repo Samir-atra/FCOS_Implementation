@@ -7,7 +7,7 @@ import re
 from operator import itemgetter
 import json
 import tensorflow as tf
-from src.utils.concatenate import concator
+from src.utils.concatenate import concat
 import os
 import numpy as np
 
