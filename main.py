@@ -16,14 +16,30 @@ except ValueError:
 print("Replica count:", strategy.num_replicas_in_sync)
 
 # Check for Kaggle Dataset Input
-# Expected structure: /kaggle/input/coco-2014-downloader/train2014, /kaggle/input/coco-2014-downloader/annotations
-KAGGLE_DATASET_PATH = "/kaggle/input/coco-2014-downloader"
+# Expected structure: /kaggle/input/coco2014
+KAGGLE_DATASET_PATH = "/kaggle/input/coco2014"
+
+# Fallback or alternate name
+if not os.path.exists(KAGGLE_DATASET_PATH):
+     KAGGLE_DATASET_PATH = "/kaggle/input/coco-2014-downloader"
 
 if os.path.exists(KAGGLE_DATASET_PATH):
     print(f"Found dataset at {KAGGLE_DATASET_PATH}")
-    TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "train2014")
-    VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "val2014")
-    ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "annotations/instances_train2014.json")
+    # Check for internal structure (sometimes it's coco2014/coco2014 or just train2014)
+    if os.path.exists(os.path.join(KAGGLE_DATASET_PATH, "train2014")):
+        TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "train2014")
+        VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "val2014")
+        ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "annotations/instances_train2014.json")
+    elif os.path.exists(os.path.join(KAGGLE_DATASET_PATH, "coco2014/train2014")):
+         TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "coco2014/train2014")
+         VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "coco2014/val2014")
+         ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "coco2014/annotations/instances_train2014.json")
+    else:
+        # Fallback to direct path assuming simple structure
+        TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "train2014")
+        VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "val2014")
+        ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "annotations/instances_train2014.json")
+
 else:
     # Download COCO 2014 Dataset (if not present locally)
     if not os.path.exists("train2014.zip") and not os.path.exists("train2014"):
