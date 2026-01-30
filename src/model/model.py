@@ -44,9 +44,22 @@ class FCOS(tf.keras.Model):
         centerness_out = []
         
         for layer in [p3_out, p4_out, p5_out, p6_out, p7_out]:
-            classifier_out.append(self.classification_head(layer))
-            centerness_out.append(self.centerness_head(layer))
-            box_out.append(self.box_head(layer))
+            # Classification
+            cls_out = self.classification_head(layer)
+            shape = tf.shape(cls_out)
+            # Reshape (B, H, W, C) -> (B, H*W, C)
+            cls_out = tf.reshape(cls_out, [shape[0], -1, self.class_num])
+            classifier_out.append(cls_out)
+
+            # Centerness
+            ctr_out = self.centerness_head(layer)
+            ctr_out = tf.reshape(ctr_out, [shape[0], -1, 1])
+            centerness_out.append(ctr_out)
+
+            # Box Regression
+            box_out_layer = self.box_head(layer)
+            box_out_layer = tf.reshape(box_out_layer, [shape[0], -1, 4])
+            box_out.append(box_out_layer)
         
         classifier_out = tf.concat(classifier_out, axis=1, name="classifier")
         centerness_out = tf.concat(centerness_out, axis=1, name="centerness")
