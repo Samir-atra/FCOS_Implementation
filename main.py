@@ -15,20 +15,30 @@ except ValueError:
 
 print("Replica count:", strategy.num_replicas_in_sync)
 
-# Download COCO 2014 Dataset (if not present)
-if not os.path.exists("train2014.zip"):
-    print("Downloading COCO 2014 Dataset...")
-    os.system("wget -q http://images.cocodataset.org/zips/train2014.zip")
-    os.system("wget -q http://images.cocodataset.org/annotations/annotations_trainval2014.zip")
-    print("Unzipping...")
-    os.system("unzip -q train2014.zip")
-    os.system("unzip -q annotations_trainval2014.zip")
-    print("Data setup complete.")
+# Check for Kaggle Dataset Input
+# Expected structure: /kaggle/input/coco-2014-downloader/train2014, /kaggle/input/coco-2014-downloader/annotations
+KAGGLE_DATASET_PATH = "/kaggle/input/coco-2014-downloader"
 
-# Paths (Adjusted for Downloaded Data)
-TRAIN_IMGS_PATH = "train2014/"
-VAL_IMGS_PATH = "val2014/" 
-ANNOTATIONS_PATH = "annotations/instances_train2014.json"
+if os.path.exists(KAGGLE_DATASET_PATH):
+    print(f"Found dataset at {KAGGLE_DATASET_PATH}")
+    TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "train2014")
+    VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "val2014")
+    ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "annotations/instances_train2014.json")
+else:
+    # Download COCO 2014 Dataset (if not present locally)
+    if not os.path.exists("train2014.zip") and not os.path.exists("train2014"):
+        print("Downloading COCO 2014 Dataset...")
+        os.system("wget -q http://images.cocodataset.org/zips/train2014.zip")
+        os.system("wget -q http://images.cocodataset.org/annotations/annotations_trainval2014.zip")
+        print("Unzipping...")
+        os.system("unzip -q train2014.zip")
+        os.system("unzip -q annotations_trainval2014.zip")
+        print("Data setup complete.")
+
+    # Paths (Adjusted for Downloaded/Local Data)
+    TRAIN_IMGS_PATH = "train2014/"
+    VAL_IMGS_PATH = "val2014/" 
+    ANNOTATIONS_PATH = "annotations/instances_train2014.json"
 
 # Hyperparameters
 BATCH_SIZE = 16 * strategy.num_replicas_in_sync  # Global batch size
