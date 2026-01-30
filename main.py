@@ -17,28 +17,51 @@ print("Replica count:", strategy.num_replicas_in_sync)
 
 # Check for Kaggle Dataset Input
 # Expected structure: /kaggle/input/coco2014
-KAGGLE_DATASET_PATH = "/kaggle/input/coco2014"
+KAGGLE_DATASET_PATH = "/kaggle/input/coco2014/COCO2014"
 
 # Fallback or alternate name
 if not os.path.exists(KAGGLE_DATASET_PATH):
      KAGGLE_DATASET_PATH = "/kaggle/input/coco-2014-downloader"
 
+# Robust Path Detection
+def find_path(root, target, is_dir=True):
+    for dirpath, dirnames, filenames in os.walk(root):
+        if is_dir:
+            if target in dirnames:
+                return os.path.join(dirpath, target)
+        else:
+            if target in filenames:
+                return os.path.join(dirpath, target)
+    return None
+
 if os.path.exists(KAGGLE_DATASET_PATH):
-    print(f"Found dataset at {KAGGLE_DATASET_PATH}")
-    # Check for internal structure (sometimes it's coco2014/coco2014 or just train2014)
-    if os.path.exists(os.path.join(KAGGLE_DATASET_PATH, "train2014")):
-        TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "train2014")
-        VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "val2014")
-        ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "annotations/instances_train2014.json")
-    elif os.path.exists(os.path.join(KAGGLE_DATASET_PATH, "coco2014/train2014")):
-         TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "coco2014/train2014")
-         VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "coco2014/val2014")
-         ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "coco2014/annotations/instances_train2014.json")
+    print(f"Dataset root found at {KAGGLE_DATASET_PATH}")
+    
+    # Search for Annotations File
+    annot_file = find_path(KAGGLE_DATASET_PATH, "instances_train2014.json", is_dir=False)
+    if annot_file:
+         ANNOTATIONS_PATH = annot_file
+         print(f"Found annotations at: {ANNOTATIONS_PATH}")
     else:
-        # Fallback to direct path assuming simple structure
-        TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "train2014")
-        VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "val2014")
-        ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "annotations/instances_train2014.json")
+         print("WARNING: Could not find instances_train2014.json")
+         # Fallback default
+         ANNOTATIONS_PATH = os.path.join(KAGGLE_DATASET_PATH, "annotations/instances_train2014.json")
+
+    # Search for Train Images
+    train_dir = find_path(KAGGLE_DATASET_PATH, "train2014", is_dir=True)
+    if train_dir:
+         TRAIN_IMGS_PATH = train_dir + "/" # Ensure trailing slash if code expects it
+         print(f"Found train images at: {TRAIN_IMGS_PATH}")
+    else:
+         print("WARNING: Could not find train2014 directory")
+         TRAIN_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "train2014/")
+
+    # Search for Val Images
+    val_dir = find_path(KAGGLE_DATASET_PATH, "val2014", is_dir=True)
+    if val_dir:
+         VAL_IMGS_PATH = val_dir + "/"
+    else:
+         VAL_IMGS_PATH = os.path.join(KAGGLE_DATASET_PATH, "val2014/")
 
 else:
     # Download COCO 2014 Dataset (if not present locally)
