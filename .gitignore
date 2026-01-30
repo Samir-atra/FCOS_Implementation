@@ -1,0 +1,8 @@
+FCOS_R_50_FPN_1x.pth
+__pycache__
+Literature/*.pdf
+.vscode
+*.pdf
+*.pth
+*.txt
+*.pyc

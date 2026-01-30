@@ -4,8 +4,7 @@ and the training loop
 """
 
 import tensorflow as tf
-from loss import IOULoss
-from loss import FcosLoss
+
 from heads import head
 from backbone import backbone
 from pyramid import FPN
@@ -26,15 +25,18 @@ class FCOS(tf.keras.Model):
         self.centerness_head = head(1, self.bias)
         self.box_head = head(4, "zero")
         
-    def call(self):
+    def call(self, images, training=False):
         """
         the full fcos model assembled parts 
         
+        Args:
+            images: input images tensor
+            training: boolean, whether in training mode
+            
         Returns:
-            list of all the outputs of the model heads 
-            for one training example
+            dict: dictionary of all the outputs of the model heads 
         """
-        c3, c4, c5 = self.backbone()
+        c3, c4, c5 = self.backbone(images, training=training)
         p3_out, p4_out, p5_out, p6_out, p7_out = self.pyramid(c3, c4, c5)
         
         classifier_out = []
@@ -46,43 +48,20 @@ class FCOS(tf.keras.Model):
             centerness_out.append(self.centerness_head(layer))
             box_out.append(self.box_head(layer))
         
-        classifier_out = tf.concat(classifier_out, axis = 1, name = "classifier")
-        centerness_out = tf.concat(centerness_out, axis = 1, name = "centerness")
-        box_out = tf.concat(box_out, axis = 1, name = "box")
+        classifier_out = tf.concat(classifier_out, axis=1, name="classifier")
+        centerness_out = tf.concat(centerness_out, axis=1, name="centerness")
+        box_out = tf.concat(box_out, axis=1, name="box")
         
-        return tf.concat([classifier_out, centerness_out, box_out], axis = -1)
+        return {"classifier": classifier_out, "centerness": centerness_out, "box": box_out}
 
 
 
 # loss function
-focal = tf.keras.losses.CategoricalFocalCrossentropy(
-    alpha = 0.25,
-    gamma = 2.0,
-)
-iouloss = IOULoss()
-bce = tf.keras.losses.BinaryCrossentropy()
-
-model = FCOS()
-
-model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate = 0.01,
-              weight_decay = 0.0001,
-              momentum = 0.9),
-              loss = {'classifier': focal, 'box': iouloss, 'centerness': bce},
-              metrics = ['precision'])
-
-
-def schedule(epoch, lr):
-  if epoch == 60000 or epoch == 80000:
-    lr = lr / 10
-    return lr
-
-sched = tf.keras.callbacks.LearningRateScheduler(
-    schedule
-)
-
-model.fit(
-          epochs = 90000,
-          batch_size = 16,
-          callbacks = [sched],
-          )
+# loss function
+# focal = tf.keras.losses.CategoricalFocalCrossentropy(
+#     alpha = 0.25,
+#     gamma = 2.0,
+# )
+# iouloss = IOULoss()
+# bce = tf.keras.losses.BinaryCrossentropy()
 
