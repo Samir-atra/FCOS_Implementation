@@ -1,5 +1,6 @@
-import tensorflow as tf
 import os
+
+import tensorflow as tf
 from src.model.model import FCOS
 from src.loss import IOULoss
 
@@ -14,10 +15,20 @@ except ValueError:
 
 print("Replica count:", strategy.num_replicas_in_sync)
 
-# Paths (Adjusted for Kaggle/Cloud environment - User should verify these)
-TRAIN_IMGS_PATH = "/kaggle/input/coco-2017-dataset/coco2017/train2017/"
-VAL_IMGS_PATH = "/home/samer/Desktop/Beedoo/FCOS/FCOS_Implementation/COCO2014/val2014/" # Placeholder
-ANNOTATIONS_PATH = "/kaggle/input/coco-2017-dataset/coco2017/annotations/instances_train2017.json"
+# Download COCO 2014 Dataset (if not present)
+if not os.path.exists("train2014.zip"):
+    print("Downloading COCO 2014 Dataset...")
+    os.system("wget -q http://images.cocodataset.org/zips/train2014.zip")
+    os.system("wget -q http://images.cocodataset.org/annotations/annotations_trainval2014.zip")
+    print("Unzipping...")
+    os.system("unzip -q train2014.zip")
+    os.system("unzip -q annotations_trainval2014.zip")
+    print("Data setup complete.")
+
+# Paths (Adjusted for Downloaded Data)
+TRAIN_IMGS_PATH = "train2014/"
+VAL_IMGS_PATH = "val2014/" 
+ANNOTATIONS_PATH = "annotations/instances_train2014.json"
 
 # Hyperparameters
 BATCH_SIZE = 16 * strategy.num_replicas_in_sync  # Global batch size

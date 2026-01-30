@@ -5,9 +5,9 @@ and the training loop
 
 import tensorflow as tf
 
-from heads import head
-from backbone import backbone
-from pyramid import FPN
+from src.model.heads import head
+from src.model.backbone import backbone
+from src.model.pyramid import FPN
 
 
 class FCOS(tf.keras.Model):
