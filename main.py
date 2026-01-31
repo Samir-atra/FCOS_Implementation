@@ -6,21 +6,34 @@ from src.loss import IOULoss
 
 # TPU Detection and Initialization
 # TPU Detection and Initialization
+tpu = None
 try:
-    # Check if we are in a TPU environment
-    if 'TPU_NAME' in os.environ:
-         print(f"TPU_NAME detected: {os.environ['TPU_NAME']}")
-         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
-    else:
-         # Try auto-detect
-         tpu = tf.distribute.cluster_resolver.TPUClusterResolver.connect()
-    
-    tf.config.experimental_connect_to_cluster(tpu)
-    tf.tpu.experimental.initialize_tpu_system(tpu)
-    strategy = tf.distribute.TPUStrategy(tpu)
-    print("Running on TPU:", tpu.master())
-except Exception as e:
-    print(f"TPU Initialization failed: {e}")
+    # Attempt 1: Try connecting to local TPU (Typical for Kaggle TPU VM v5e/v4)
+    print("Attempting to connect to local TPU...")
+    tpu = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
+    print("Successfully initialized TPU as 'local'")
+except Exception as e_local:
+    print(f"Local TPU connection failed: {e_local}")
+    try:
+        # Attempt 2: Auto-detect (Environment variable lookup for older TPUs)
+        print("Attempting auto-detection of TPU...")
+        tpu = tf.distribute.cluster_resolver.TPUClusterResolver()
+        print("Successfully initialized TPU from auto-detection")
+    except Exception as e_auto:
+        print(f"TPU auto-detection failed: {e_auto}")
+        tpu = None
+
+if tpu:
+    try:
+        tf.config.experimental_connect_to_cluster(tpu)
+        tf.tpu.experimental.initialize_tpu_system(tpu)
+        strategy = tf.distribute.TPUStrategy(tpu)
+        print("Running on TPU:", tpu.master())
+    except Exception as e_init:
+        print(f"TPU System Initialization failed: {e_init}")
+        print("Falling back to default strategy.")
+        strategy = tf.distribute.get_strategy()
+else:
     print("TPU not found. Falling back to default strategy (CPU/GPU).")
     strategy = tf.distribute.get_strategy()
 
