@@ -119,7 +119,7 @@ with strategy.scope():
             'box': iou_loss, 
             'centerness': bce_loss
         },
-        metrics=['precision'] # Note: standard precision might not work well for OD, usually need COCOEvaluator
+        metrics={'classifier': 'accuracy', 'centerness': 'accuracy'}
     )
 
 def get_dataset(batch_size):
