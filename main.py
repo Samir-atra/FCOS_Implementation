@@ -6,35 +6,30 @@ from src.loss import IOULoss
 
 # TPU Detection and Initialization
 # TPU Detection and Initialization
-tpu = None
 try:
-    # Attempt 1: Try connecting to local TPU (Typical for Kaggle TPU VM v5e/v4)
-    print("Attempting to connect to local TPU...")
-    tpu = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
-    print("Successfully initialized TPU as 'local'")
-except Exception as e_local:
-    print(f"Local TPU connection failed: {e_local}")
     try:
-        # Attempt 2: Auto-detect (Environment variable lookup for older TPUs)
-        print("Attempting auto-detection of TPU...")
+        # Try local first (TPU VM)
+        tpu = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
+        print("Initialized local TPU.")
+    except:
+        # Fallback to auto-detect (Remote)
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver()
-        print("Successfully initialized TPU from auto-detection")
-    except Exception as e_auto:
-        print(f"TPU auto-detection failed: {e_auto}")
-        tpu = None
-
-if tpu:
-    try:
+        print("Initialized remote TPU.")
+    
+    # Only connect to cluster if NOT local
+    if tpu.master() != 'local':
+        print("Connecting to remote cluster...")
         tf.config.experimental_connect_to_cluster(tpu)
-        tf.tpu.experimental.initialize_tpu_system(tpu)
-        strategy = tf.distribute.TPUStrategy(tpu)
-        print("Running on TPU:", tpu.master())
-    except Exception as e_init:
-        print(f"TPU System Initialization failed: {e_init}")
-        print("Falling back to default strategy.")
-        strategy = tf.distribute.get_strategy()
-else:
-    print("TPU not found. Falling back to default strategy (CPU/GPU).")
+    else:
+        print("Skipping cluster connection for local TPU.")
+        
+    tf.tpu.experimental.initialize_tpu_system(tpu)
+    strategy = tf.distribute.TPUStrategy(tpu)
+    print("Running on TPU:", tpu.master())
+    
+except Exception as e:
+    print(f"TPU Initialization failed: {e}")
+    print("Falling back to default strategy (CPU/GPU).")
     strategy = tf.distribute.get_strategy()
 
 print("Replica count:", strategy.num_replicas_in_sync)
