@@ -3,7 +3,7 @@ import os
 import sys
 
 # 1. Clone the repository
-# 1. Clone the repository
+
 REPO_DIR = "FCOS_Implementation"
 if os.path.exists(REPO_DIR):
     import shutil
