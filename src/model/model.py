@@ -59,6 +59,7 @@ class FCOS(tf.keras.Model):
             # Box Regression
             box_out_layer = self.box_head(layer)
             box_out_layer = tf.reshape(box_out_layer, [shape[0], -1, 4])
+            box_out_layer = tf.exp(box_out_layer) # FCOS uses exp to force positive distances
             box_out.append(box_out_layer)
         
         classifier_out = tf.concat(classifier_out, axis=1, name="classifier")

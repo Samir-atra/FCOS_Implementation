@@ -22,7 +22,7 @@ def backbone():
     base_model = tf.keras.applications.ResNet50(
             include_top=False,
             weights="imagenet",
-            input_shape=(800, 1024, 3),
+            input_shape=(None, None, 3),
             classes=80,
         )
 

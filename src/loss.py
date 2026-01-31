@@ -12,52 +12,78 @@ class IOULoss(tf.keras.Loss):
     def __init__(self):
         super().__init__()
 
-    def call(self, pred, g_label):
-        """the method includes the implementation of the IOU loss function"""
-        if g_label != 0:
-            pred_left = pred[0]
-            pred_top = pred[1]
-            pred_right = pred[2]
-            pred_bottom = pred[3]
-
-            g_label_left = g_label[0]
-            g_label_top = g_label[1]
-            g_label_right = g_label[2]
-            g_label_bottom = g_label[3]
-
-            target_area = (g_label_left + g_label_right) * (
-                g_label_top + g_label_bottom
-            )
-            pred_area = (pred_left + pred_right) * (pred_top + pred_bottom)
-
-            w_intersect = tf.math.minimum(pred_left, g_label_left) + tf.math.minimum(
-                pred_right, g_label_right
-            )
-            g_w_intersect = tf.math.maximum(pred_left, g_label_left) + tf.math.maximum(
-                pred_right, g_label_right
-            )
-            h_intersect = tf.math.minimum(
-                pred_bottom, g_label_bottom
-            ) + tf.math.minimum(pred_top, g_label_top)
-            g_h_intersect = tf.math.maximum(
-                pred_bottom, g_label_bottom
-            ) + tf.math.maximum(pred_top, g_label_top)
-            ac_union = g_w_intersect * g_h_intersect + 1e-7
-            area_intersect = w_intersect * h_intersect
-            area_union = target_area + pred_area - area_intersect
-
-            ious = (area_intersect + 1.0) / (
-                area_union + 1.0
-            )  # need to check what these are and the next line and compare pytorch to research paper.
-            gious = ious - (ac_union - area_union) / ac_union
-
-            loss = -tf.math.log(ious)
-
-            return loss
-
-        else:
-            loss = 0
-            return loss
+    def call(self, y_true, y_pred):
+        """
+        Calculates IoU Loss (negative log IoU) for regression targets.
+        
+        Args:
+            y_true: Ground truth tensor of shape (Batch, Points, 4) [l, t, r, b]
+            y_pred: Prediction tensor of shape (Batch, Points, 4) [l, t, r, b]
+            
+        Returns:
+            loss: Tensor of shape (Batch, Points)
+        """
+        # Split coordinates
+        # y_true/pred: [left, top, right, bottom]
+        
+        # Ensure preds are positive (technically model should ensure this with exp, but safe to abs or clip)
+        y_pred = tf.math.abs(y_pred) 
+        
+        # Ground Truth
+        gt_l = y_true[..., 0]
+        gt_t = y_true[..., 1]
+        gt_r = y_true[..., 2]
+        gt_b = y_true[..., 3]
+        
+        # Predictions
+        pred_l = y_pred[..., 0]
+        pred_t = y_pred[..., 1]
+        pred_r = y_pred[..., 2]
+        pred_b = y_pred[..., 3]
+        
+        # Areas
+        target_area = (gt_l + gt_r) * (gt_t + gt_b)
+        pred_area = (pred_l + pred_r) * (pred_t + pred_b)
+        
+        # Intersection width and height
+        w_intersect = tf.minimum(pred_l, gt_l) + tf.minimum(pred_r, gt_r)
+        h_intersect = tf.minimum(pred_t, gt_t) + tf.minimum(pred_b, gt_b)
+        
+        # Clip to 0 (in case of no intersection)
+        w_intersect = tf.maximum(w_intersect, 0.0)
+        h_intersect = tf.maximum(h_intersect, 0.0)
+        
+        area_intersect = w_intersect * h_intersect
+        area_union = target_area + pred_area - area_intersect
+        
+        # IoU
+        # Add epsilon to prevent division by zero
+        iou = (area_intersect + 1e-7) / (area_union + 1e-7)
+        
+        # IoU Loss = -ln(IoU)
+        loss = -tf.math.log(iou + 1e-7)
+        
+        # Masking: Only calculate loss for positive samples.
+        # Background samples (gt_l, gt_t, gt_r, gt_b) are (0,0,0,0) in our data pipeline.
+        # So target_area == 0 implies background.
+        mask = tf.cast(target_area > 0, dtype=tf.float32)
+        
+        # Apply mask
+        loss = loss * mask
+        
+        # For Keras model.fit, we usually return the per-sample loss. 
+        # But here we have per-anchor loss.
+        # FCOS: Sum over positive samples / num_positive_samples.
+        # Keras will take the mean of this output over the batch if we return (Batch, Points).
+        # To strictly follow FCOS, we should sum and divide by num_pos.
+        # However, num_pos varies per image. 
+        # If we return the masked loss map, Keras Global Batch Mean will likely underestimate the loss 
+        # (because of many zeros).
+        # Better approach: partial reduction here?
+        # But Keras expects (Batch, d0, .. dN) matching target.
+        # Let's return the element-wise loss. The magnitude will be small, but gradient direction is correct.
+        
+        return loss
 
 
 class FcosLoss(tf.keras.Loss):

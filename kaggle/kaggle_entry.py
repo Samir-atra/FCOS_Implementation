@@ -3,9 +3,26 @@ import os
 import sys
 
 # 1. Clone the repository
-if not os.path.exists("FCOS_Implementation"):
-    print("Cloning repository...")
-    os.system("git clone https://github.com/Samir-atra/FCOS_Implementation.git")
+# 1. Clone the repository
+REPO_DIR = "FCOS_Implementation"
+if os.path.exists(REPO_DIR):
+    import shutil
+    print(f"Removing existing {REPO_DIR} to ensure fresh clone...")
+    shutil.rmtree(REPO_DIR)
+
+print("Cloning publicly from FCOS_Implementation...")
+repo_url = "https://github.com/Samir-atra/FCOS_Implementation.git"
+
+import subprocess
+try:
+    result = subprocess.run(["git", "clone", repo_url, REPO_DIR], check=True, capture_output=True, text=True)
+    print("Git clone output:")
+    print(result.stdout)
+except subprocess.CalledProcessError as e:
+    print("Git clone failed!")
+    print("Standard Output:", e.stdout)
+    print("Standard Error:", e.stderr)
+    sys.exit(1)
 
 # 2. Add to path
 repo_path = os.path.abspath("FCOS_Implementation")
