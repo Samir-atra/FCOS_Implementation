@@ -29,8 +29,15 @@ try:
     
 except Exception as e:
     print(f"TPU Initialization failed: {e}")
-    print("Falling back to default strategy (CPU/GPU).")
-    strategy = tf.distribute.get_strategy()
+    
+    # Explicit GPU Fallback
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        print(f"Found {len(gpus)} GPU(s). Using MirroredStrategy for Multi-GPU/Single-GPU acceleration.")
+        strategy = tf.distribute.MirroredStrategy()
+    else:
+        print("No TPU or GPU found. Falling back to CPU default strategy.")
+        strategy = tf.distribute.get_strategy()
 
 print("Replica count:", strategy.num_replicas_in_sync)
 
