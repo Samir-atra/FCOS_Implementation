@@ -59,6 +59,13 @@ def load_coco_annotations(json_path, image_dir):
                 boxes_raw += [[0.0, 0.0, 0.0, 0.0, 0]] * (MAX_BOXES_PER_IMAGE - len(boxes_raw))
             
             bboxes.append(boxes_raw)
+    
+    # Clear large dictionaries to free RAM immediately
+    del data
+    del images
+    del annotations
+    import gc
+    gc.collect()
             
     return image_paths, bboxes
 
@@ -323,6 +330,7 @@ def get_training_dataset(train_imgs_path, annotations_path, batch_size):
     dataset = dataset.batch(batch_size, drop_remainder=True)
     
     # Prefetch
-    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+    # Limit prefetch buffer to conserve RAM (AUTOTUNE can grow unbounded)
+    dataset = dataset.prefetch(4)
     
     return dataset
