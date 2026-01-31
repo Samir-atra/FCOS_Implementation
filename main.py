@@ -109,6 +109,12 @@ else:
 BATCH_SIZE = 16 * strategy.num_replicas_in_sync  # Global batch size
 EPOCHS = 12  # Standard for 1x schedule, adjust as needed
 
+# Limit dataset for faster debugging/testing if needed
+MAX_IMAGES = os.environ.get("MAX_IMAGES", None)
+if MAX_IMAGES:
+    MAX_IMAGES = int(MAX_IMAGES)
+    print(f"Limiting training to {MAX_IMAGES} images.")
+
 def create_learning_rate_schedule():
     # 1x Schedule: divide by 10 at 60k and 80k steps (approx epochs 8 and 11)
     # This needs to be converted to steps based on dataset size
@@ -149,7 +155,7 @@ with strategy.scope():
     )
 
 def get_dataset(batch_size):
-    return load_data.get_training_dataset(TRAIN_IMGS_PATH, ANNOTATIONS_PATH, batch_size)
+    return load_data.get_training_dataset(TRAIN_IMGS_PATH, ANNOTATIONS_PATH, batch_size, max_images=MAX_IMAGES)
 
 # Training Loop
 train_dataset = get_dataset(BATCH_SIZE)

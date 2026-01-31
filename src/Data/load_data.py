@@ -20,7 +20,7 @@ IMG_HEIGHT = 800
 IMG_WIDTH = 1024
 MAX_BOXES_PER_IMAGE = 100
 
-def load_coco_annotations(json_path, image_dir):
+def load_coco_annotations(json_path, image_dir, max_images=None):
     """
     Parses COCO JSON annotations and returns lists of image paths and formatted annotations.
     """
@@ -28,6 +28,11 @@ def load_coco_annotations(json_path, image_dir):
         data = json.load(f)
 
     images = {img['id']: img for img in data['images']}
+    if max_images:
+        # Slice dictionary to limit size
+        import itertools
+        images = dict(itertools.islice(images.items(), max_images))
+
     annotations = {}
     
     for ann in data['annotations']:
@@ -309,11 +314,11 @@ def encode_targets(image, boxes, strides=[8, 16, 32, 64, 128], limit_ranges=[[0,
     
     return image, {'classifier': cls_concat, 'box': box_concat, 'centerness': ctr_concat}
 
-def get_training_dataset(train_imgs_path, annotations_path, batch_size):
+def get_training_dataset(train_imgs_path, annotations_path, batch_size, max_images=None):
     """
     Creates the tf.data.Dataset pipeline.
     """
-    image_paths, all_boxes = load_coco_annotations(annotations_path, train_imgs_path)
+    image_paths, all_boxes = load_coco_annotations(annotations_path, train_imgs_path, max_images=max_images)
     
     dataset = tf.data.Dataset.from_tensor_slices((image_paths, all_boxes))
     
