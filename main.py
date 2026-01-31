@@ -5,11 +5,22 @@ from src.model.model import FCOS
 from src.loss import IOULoss
 
 # TPU Detection and Initialization
+# TPU Detection and Initialization
 try:
-    tpu = tf.distribute.cluster_resolver.TPUClusterResolver.connect()
+    # Check if we are in a TPU environment
+    if 'TPU_NAME' in os.environ:
+         print(f"TPU_NAME detected: {os.environ['TPU_NAME']}")
+         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
+    else:
+         # Try auto-detect
+         tpu = tf.distribute.cluster_resolver.TPUClusterResolver.connect()
+    
+    tf.config.experimental_connect_to_cluster(tpu)
+    tf.tpu.experimental.initialize_tpu_system(tpu)
     strategy = tf.distribute.TPUStrategy(tpu)
     print("Running on TPU:", tpu.master())
-except ValueError:
+except Exception as e:
+    print(f"TPU Initialization failed: {e}")
     print("TPU not found. Falling back to default strategy (CPU/GPU).")
     strategy = tf.distribute.get_strategy()
 
