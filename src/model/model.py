@@ -36,6 +36,9 @@ class FCOS(tf.keras.Model):
         Returns:
             dict: dictionary of all the outputs of the model heads 
         """
+        # Extract batch size from input to ensure consistency
+        batch_size = tf.shape(images)[0]
+        
         c3, c4, c5 = self.backbone(images, training=training)
         p3_out, p4_out, p5_out, p6_out, p7_out = self.pyramid(c3, c4, c5)
         
@@ -46,19 +49,18 @@ class FCOS(tf.keras.Model):
         for layer in [p3_out, p4_out, p5_out, p6_out, p7_out]:
             # Classification
             cls_out = self.classification_head(layer)
-            shape = tf.shape(cls_out)
             # Reshape (B, H, W, C) -> (B, H*W, C)
-            cls_out = tf.reshape(cls_out, [shape[0], -1, self.class_num])
+            cls_out = tf.reshape(cls_out, [batch_size, -1, self.class_num])
             classifier_out.append(cls_out)
 
             # Centerness
             ctr_out = self.centerness_head(layer)
-            ctr_out = tf.reshape(ctr_out, [shape[0], -1, 1])
+            ctr_out = tf.reshape(ctr_out, [batch_size, -1, 1])
             centerness_out.append(ctr_out)
 
             # Box Regression
             box_out_layer = self.box_head(layer)
-            box_out_layer = tf.reshape(box_out_layer, [shape[0], -1, 4])
+            box_out_layer = tf.reshape(box_out_layer, [batch_size, -1, 4])
             box_out_layer = tf.exp(box_out_layer) # FCOS uses exp to force positive distances
             box_out.append(box_out_layer)
         
