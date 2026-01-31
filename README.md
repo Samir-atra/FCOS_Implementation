@@ -12,12 +12,33 @@ A detailed explanation of the implementation process, the challenges faced, and 
 
 ## Project Status
 
-**On Hold:** This project is currently on hold due to a lack of sufficient computational resources required for training the model on the COCO dataset. The model has been implemented and compiles successfully, but has not been trained.
+**Active Development (Jan 2026):** The project has been reactivated. The model implementation is complete, and the training pipeline has been successfully debugged and verified on both local environments (CPU/GPU) and Kaggle TPU v3-8. Major bugs in the loss functions and data pipeline have been resolved.
+
+**Current limitation:** While the model compiles and trains, we still lack the massive computational resources required to train the full FCOS model on the entire COCO dataset to state-of-the-art convergence.
+
+## ❤️ Call for Compute Sponsorship
+
+We are actively seeking **Compute Sponsorship** to train this model to full convergence on the COCO dataset.
+
+The FCOS model requires significant GPU/TPU hours to train on the full 80-class COCO detection task. We have a fully functional codebase that is ready to run, but we are limited by hardware availability.
+
+**If you can provide access to high-performance GPUs (e.g., A100, H100) or TPUs, or if you would like to sponsor this open-source research implementation, please contact us!**
+
+*   **GitHub Issues:** Open an issue titled "Sponsorship"
+*   **Email:** samiratra95@gmail.com
+*   **LinkedIn:** [Samir Atra](https://www.linkedin.com/in/samir-atra/)
+
+## Recent Updates (Jan 2026)
+
+*   **TPU & GPU Support:** Fixed training pipeline for Local (CPU/GPU) and Kaggle (TPU) environments. Added automatic strategy detection.
+*   **Bug Fixes:** Resolved critical bugs in `IOULoss` vectorization, `ResNet50` input shapes, and multi-output model compilation.
+*   **Data Pipeline:** Optimized data loading to prevent RAM OOM errors and implemented dynamic dataset sizing via `MAX_IMAGES`.
+*   **Kaggle Integration:** Added `kaggle_entry.py` for easy execution in Kaggle kernels.
+
 
 ## Background
 
 FCOS is a fully convolutional one-stage object detector that is anchor-box free and proposal free. It solves object detection in a per-pixel prediction fashion, similar to semantic segmentation. This approach avoids the complicated computation related to anchor boxes and the associated hyperparameters, making the detector much simpler and more flexible.
-
 ## Features
 
 *   **Anchor-Free:** No need for anchor boxes, which simplifies the training process and reduces the number of hyperparameters.
@@ -83,6 +104,8 @@ The data loading script (`src/Data/load_data.py`) expects the data to be in a di
 
 ## How to Run
 
+### Local / Server
+
 1.  **Set the `PYTHONPATH`:**
     To ensure that the Python modules in the `src` directory are importable, add the project directory to your `PYTHONPATH`.
     ```bash
@@ -96,7 +119,20 @@ The data loading script (`src/Data/load_data.py`) expects the data to be in a di
     ```bash
     python main.py
     ```
-    Note that the script is currently set up to load a small subset of the data due to resource limitations.
+
+    **Tip:** You can use the `MAX_IMAGES` environment variable to test on a small subset of data:
+    ```bash
+    export MAX_IMAGES=100
+    python main.py
+    ```
+
+### Kaggle (TPU)
+
+This repository is optimized for Kaggle TPU environments.
+1. Create a new Kaggle Notebook.
+2. Select **TPU v3-8** as the accelerator.
+3. Clone this repository or add it as a dataset.
+4. The `main.py` script will automatically detect the TPU and connect to the cluster.
 
 ## Implementation Details
 
@@ -118,9 +154,10 @@ The author has identified several potential improvements for this implementation
 
 ## File Descriptions
 
-*   `main.py`: The main entry point for training the model.
+*   `main.py`: The main entry point for training the model. Handles TPU/GPU strategy selection.
 *   `script.sh`: Script to set the `PYTHONPATH`.
 *   `Notes.txt`: The author's personal notes and development log.
+*   `kaggle/kaggle_entry.py`: Helper script for running on Kaggle.
 *   `src/Data/load_data.py`: Script for loading and preprocessing the COCO dataset.
 *   `src/Data/downloading_COCO.sh`: Commands to download the COCO dataset.
 *   `src/model/model.py`: Defines the main FCOS model class and compiles it.
