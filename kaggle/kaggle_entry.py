@@ -35,6 +35,18 @@ os.chdir(repo_path)
 # This logic is now inside the main.py of the cloned repo, but we might need to trigger it.
 # Actually, the cloned repo has the `main.py`. We just need to execute it.
 
+# print("Starting TPU Diagnostics...")
+# import runpy
+# runpy.run_path("tpu_diagnose.py", run_name="__main__")
+
+# CONFIGURATION
+# Set to None for full dataset, or an integer (e.g. 1000) for testing
+MAX_TRAINING_IMAGES = 1000 
+
+if MAX_TRAINING_IMAGES is not None:
+    print(f"Setting MAX_IMAGES environment variable to {MAX_TRAINING_IMAGES}")
+    os.environ["MAX_IMAGES"] = str(MAX_TRAINING_IMAGES)
+
 print("Starting training from cloned repository...")
 # EXECUTE the actual main.py from the repository
 # We use runpy or import to run it
